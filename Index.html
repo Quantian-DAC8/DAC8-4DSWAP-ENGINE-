@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>4D-Swap Patent Demo v3.0 - USPTO 63/882,399</title>
+<style>
+:root {
+  --bg-primary: #0a0e14;
+  --bg-secondary: #111822;
+  --bg-card: #151d2a;
+  --accent-cyan: #00c2ff;
+  --accent-blue: #0ea5e9;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --text-primary: #e8eef6;
+  --text-secondary: #94a3b8;
+  --border: #1e293b;
+  --purple: #8b5cf6;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, #0d1520 50%, var(--bg-primary) 100%);
+  color: var(--text-primary);
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.container { max-width: 1800px; margin: 0 auto; }
+
+.header {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(10px);
+}
+
+.header h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 6px 12px;
+  background: rgba(0,194,255,0.15);
+  border: 1px solid rgba(0,194,255,0.3);
+  border-radius: 999px;
+  color: var(--accent-cyan);
+}
+
+.status-bar {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.status-item {
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.state-badge {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+
+.state-IDLE { background: #64748b; }
+.state-QUEUED { background: var(--accent-blue); }
+.state-PENDING { background: var(--warning); color: #000; }
+.state-PREPARED { background: #f97316; }
+.state-COMMITTING { background: var(--purple); }
+.state-SETTLED { background: var(--success); animation: pulse 2s infinite; }
+.state-ROLLED_BACK { background: var(--error); }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.tab.active {
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+  color: white;
+  border-color: transparent;
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1000px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.card h2 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+  color: white;
+}
+
+.btn-success {
+  background: linear-gradient(90deg, #10b981, #059669);
+  color: white;
+}
+
+.btn-danger {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.btn-secondary {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.btn:hover { transform: translateY(-2px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+.log-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.log-entry {
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 8px;
+  border: 1px solid;
+  animation: slideIn 0.3s;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.log-info { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: #93c5fd; }
+.log-success { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: #6ee7b7; }
+.log-warning { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #fcd34d; }
+.log-error { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #fca5a5; }
+
+.evidence-box {
+  padding: 12px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  word-break: break-all;
+  margin-bottom: 12px;
+}
+
+.triple-gate {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.gate-card {
+  padding: 16px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.gate-card.verified {
+  background: rgba(16,185,129,0.1);
+  border-color: var(--success);
+}
+
+.gate-card.failed {
+  background: rgba(239,68,68,0.1);
+  border-color: var(--error);
+}
+
+.gate-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.gate-status {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.gate-value {
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+  color: var(--accent-cyan);
+}
+
+.timers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.timer-card {
+  padding: 16px;
+  border: 2px solid;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.timer-ttl {
+  background: rgba(14,165,233,0.1);
+  border-color: var(--accent-blue);
+}
+
+.timer-commit {
+  background: rgba(245,158,11,0.1);
+  border-color: var(--warning);
+}
+
+.timer-finality {
+  background: rgba(139,92,246,0.1);
+  border-color: var(--purple);
+}
+
+.timer-value {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 8px 0;
+}
+
+.timer-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.manifest-entry {
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.manifest-label {
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.manifest-value {
+  font-family: 'Courier New', monospace;
+  color: var(--accent-cyan);
+}
+
+.hysteresis-chart {
+  height: 200px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+  margin-top: 16px;
+}
+
+.threshold-line {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  height: 1px;
+  border-top: 2px dashed;
+}
+
+.threshold-min {
+  bottom: 40%;
+  border-color: var(--error);
+}
+
+.threshold-resume {
+  bottom: 50%;
+  border-color: var(--success);
+}
+
+.threshold-label {
+  position: absolute;
+  right: 20px;
+  font-size: 10px;
+  padding: 2px 6px;
+  background: var(--bg-card);
+  border-radius: 4px;
+}
+
+.reserve-indicator {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  background: var(--warning);
+  border-radius: 50%;
+  transition: all 0.5s;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.highlight { background: rgba(0,194,255,0.1); }
+</style>
+<style>
+/* Injected: FI-SAFE banner + prototype badge */
+.quantian-conf-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9999;
+  background: rgba(153, 27, 27, 0.95); /* deep red */
+  color: #fff;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: .3px;
+  padding: 10px 16px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+.quantian-proto-badge {
+  display: inline-block;
+  margin: 8px 0;
+  padding: 6px 10px;
+  background: #0b3a78;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 12px;
+}
+body { padding-top: 48px; } /* to not overlap content */
+</style>
+</head>
+<body>
+<div class="quantian-conf-banner">🔒 HEMLIGT MATERIAL – FÅR EJ SPRIDAS • CONFIDENTIAL – DO NOT DISTRIBUTE</div>
+<div style="text-align:center"><span class="quantian-proto-badge">PROTOTYPE • Synthetic data • Offline</span></div>
+
+
+<div class="container">
+  <div class="header">
+    <h1>
+      🔐 4D-Swap Patent Demonstration
+      <span class="badge">USPTO 63/882,399</span>
+      <span class="badge" style="background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.3); color: #a78bfa;">v3.0</span>
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 12px;">
+      Atomic Cross-Border Digital Asset Settlement with Triple-Gate Jurisdictional Certainty
+    </p>
+    <div class="status-bar">
+      <div class="status-item">
+        🌐 Consensus: <strong id="consensusStatus">Ready</strong>
+      </div>
+      <div class="status-item">
+        🔒 HSM/TEE: <strong id="hsmStatus">Active</strong>
+      </div>
+      <div class="status-item">
+        ⛽ Gas: <strong id="gasUsed">0</strong>
+      </div>
+      <div class="status-item">
+        📊 Reserve: <strong id="reserveRatio">11.3%</strong>
+      </div>
+      <div id="stateDisplay" class="state-badge state-IDLE">IDLE</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="main">⚡ Triple-Gate Execution</div>
+    <div class="tab" data-tab="technical">🔬 Technical Parameters</div>
+    <div class="tab" data-tab="claims">📋 Patent Claims</div>
+    <div class="tab" data-tab="manifest">📖 Merkle Manifest</div>
+    <div class="tab" data-tab="hysteresis">📈 Hysteresis Control</div>
+  </div>
+
+  <div id="tab-main" class="tab-content active">
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2>🌍 Jurisdiction Flag Configuration</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>JF_origin (ISO 3166-1)</label>
+              <select id="originJF" class="form-control">
+                <option value="SE">🇸🇪 Sweden (SE)</option>
+                <option value="LU">🇱🇺 Luxembourg (LU)</option>
+                <option value="CH">🇨🇭 Switzerland (CH)</option>
+                <option value="US">🇺🇸 United States (US)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>JF_target</label>
+              <select id="targetJF" class="form-control">
+                <option value="US">🇺🇸 United States (US)</option>
+                <option value="LU">🇱🇺 Luxembourg (LU)</option>
+                <option value="CH">🇨🇭 Switzerland (CH)</option>
+                <option value="SE">🇸🇪 Sweden (SE)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Amount</label>
+              <input type="number" id="amount" class="form-control" value="100000">
+            </div>
+            <div class="form-group">
+              <label>Currency</label>
+              <select id="currency" class="form-control">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>🔐 Triple-Gate Verification</h2>
+          <div class="triple-gate" id="tripleGate">
+            <div class="gate-card" id="gate1">
+              <div class="gate-label">ZKP Gate</div>
+              <div class="gate-status">⏳</div>
+              <div class="gate-value">Claim 1(c)</div>
+            </div>
+            <div class="gate-card" id="gate2">
+              <div class="gate-label">Oracle TTL Gate</div>
+              <div class="gate-status">⏳</div>
+              <div class="gate-value">≤5 seconds</div>
+            </div>
+            <div class="gate-card" id="gate3">
+              <div class="gate-label">Custodian Auth</div>
+              <div class="gate-status">⏳</div>
+              <div class="gate-value">State-nonce</div>
+            </div>
+          </div>
+          <div class="timers" id="timers" style="display: none;">
+            <div class="timer-card timer-ttl">
+              <div class="timer-label">ORACLE_TTL_ACCEPT_SEC</div>
+              <div class="timer-value" id="ttlValue">5</div>
+              <div class="timer-label">Claim 9</div>
+            </div>
+            <div class="timer-card timer-commit">
+              <div class="timer-label">T_COMMIT_SEC</div>
+              <div class="timer-value" id="commitValue">90</div>
+              <div class="timer-label">Claim 10</div>
+            </div>
+            <div class="timer-card timer-finality">
+              <div class="timer-label">T_FINALITY_SEC</div>
+              <div class="timer-value" id="finalityValue">300</div>
+              <div class="timer-label">Claim 1(g)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>⚡ Execution Pipeline</h2>
+          <button id="btnPrepare" class="btn btn-primary">1. Generate H_TR & Policy Digest</button>
+          <button id="btnVerify" class="btn btn-primary" disabled>2. Triple-Gate Verification</button>
+          <button id="btnExecute" class="btn btn-success" disabled style="font-size: 16px; padding: 16px;">
+            ⚡ Execute Atomic Transaction (Claim 1(e))
+          </button>
+          <button id="btnRollback" class="btn btn-danger" disabled>
+            🔄 Forward Reversal (Claim 1(f))
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h2>🔏 Cryptographic Evidence</h2>
+          <div id="evidenceContainer">
+            <p style="text-align: center; color: var(--text-secondary); padding: 20px;">
+              Prepare transaction to generate evidence
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>📊 Performance Metrics</h2>
+          <table>
+            <tr>
+              <th>Metric</th>
+              <th>4D-Swap</th>
+              <th>Prior Art</th>
+              <th>Improvement</th>
+            </tr>
+            <tr>
+              <td>Gas (Commit)</td>
+              <td class="highlight">310,000</td>
+              <td>830,000</td>
+              <td style="color: var(--success);">-62.6%</td>
+            </tr>
+            <tr>
+              <td>TOCTOU Window</td>
+              <td class="highlight">5 sec</td>
+              <td>7-13 sec</td>
+              <td style="color: var(--success);">-95.8%</td>
+            </tr>
+            <tr>
+              <td>Forward Reversal Speed</td>
+              <td class="highlight">&lt;10 sec</td>
+              <td>15-60 min</td>
+              <td style="color: var(--success);">500-1500x</td>
+            </tr>
+            <tr>
+              <td>Compliance Cost</td>
+              <td class="highlight">Automated</td>
+              <td>Manual</td>
+              <td style="color: var(--success);">-79%</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="card">
+          <h2>📝 Transaction Log</h2>
+          <div id="logContainer" class="log-container"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-technical" class="tab-content">
+    <div class="card">
+      <h2>🔬 Technical Parameters (Best Mode)</h2>
+      <table>
+        <tr><th>Parameter</th><th>Value</th><th>Description</th></tr>
+        <tr>
+          <td><strong>ORACLE_TTL_ACCEPT_SEC</strong></td>
+          <td style="color: var(--accent-cyan);">5 seconds</td>
+          <td>Maximum oracle message age (Claim 9)</td>
+        </tr>
+        <tr>
+          <td><strong>T_COMMIT_SEC</strong></td>
+          <td style="color: var(--accent-cyan);">90 seconds</td>
+          <td>Commit window duration (Claim 10)</td>
+        </tr>
+        <tr>
+          <td><strong>T_FINALITY_SEC</strong></td>
+          <td style="color: var(--accent-cyan);">300 seconds</td>
+          <td>Finality window for Forward Reversal</td>
+        </tr>
+        <tr>
+          <td><strong>MIN_THRESHOLD</strong></td>
+          <td style="color: var(--accent-cyan);">10%</td>
+          <td>Minimum reserve ratio (Claim 23)</td>
+        </tr>
+        <tr>
+          <td><strong>HYSTERESIS_MARGIN</strong></td>
+          <td style="color: var(--accent-cyan);">2%</td>
+          <td>Dead-zone margin (Claim 27)</td>
+        </tr>
+        <tr>
+          <td><strong>T_DELAY</strong></td>
+          <td style="color: var(--accent-cyan);">300 seconds</td>
+          <td>Resume delay period (Claim 28)</td>
+        </tr>
+        <tr>
+          <td><strong>Nonce Size</strong></td>
+          <td style="color: var(--accent-cyan);">≥192 bits</td>
+          <td>Idempotency nonce (Claim 25)</td>
+        </tr>
+        <tr>
+          <td><strong>ZKP System</strong></td>
+          <td style="color: var(--accent-cyan);">Groth16</td>
+          <td>192-byte proofs (Claim 2)</td>
+        </tr>
+        <tr>
+          <td><strong>Oracle HSM</strong></td>
+          <td style="color: var(--accent-cyan);">Intel SGX / AWS CloudHSM</td>
+          <td>Hardware attestation (Claims 6-7)</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab-claims" class="tab-content">
+    <div class="card">
+      <h2>📋 Patent Claims Coverage</h2>
+      <table>
+        <tr><th>Claim</th><th>Element</th><th>Status</th></tr>
+        <tr id="claim1a">
+          <td><strong>1(a)</strong></td>
+          <td>Settlement request with JF tuple, H_TR, policy digest, nonce</td>
+          <td>⏳</td>
+        </tr>
+        <tr id="claim1b">
+          <td><strong>1(b)</strong></td>
+          <td>Triple-gate witness message generation</td>
+          <td>⏳</td>
+        </tr>
+        <tr id="claim1c">
+          <td><strong>1(c)</strong></td>
+          <td>Zero-knowledge proof verification</td>
+          <td>⏳</td>
+        </tr>
+        <tr id="claim1d">
+          <td><strong>1(d)</strong></td>
+          <td>Hardware-attested oracle verification</td>
+          <td>⏳</td>
+        </tr>
+        <tr id="claim1e">
+          <td><strong>1(e)</strong></td>
+          <td>Atomic execution (JF + ownership + event + manifest)</td>
+          <td>⏳</td>
+        </tr>
+        <tr id="claim1f">
+          <td><strong>1(f)</strong></td>
+          <td>Deterministic Forward Reversal with cause code</td>
+          <td>⏳</td>
+        </tr>
+        <tr>
+          <td><strong>23</strong></td>
+          <td>Hysteresis-based circuit breaker</td>
+          <td>✅</td>
+        </tr>
+        <tr>
+          <td><strong>25</strong></td>
+          <td>Exactly-once semantics via nonce bitmap</td>
+          <td>✅</td>
+        </tr>
+        <tr>
+          <td><strong>26</strong></td>
+          <td>Merkle-batched auditor manifests</td>
+          <td>✅</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab-manifest" class="tab-content">
+    <div class="card">
+      <h2>📖 Merkle-Batched Manifest (Claim 26)</h2>
+      <div id="manifestContainer">
+        <p style="text-align: center; color: var(--text-secondary); padding: 40px;">
+          No entries yet - execute transactions to populate
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-hysteresis" class="tab-content">
+    <div class="card">
+      <h2>📈 Hysteresis Circuit Breaker (Claim 23)</h2>
+      <div class="hysteresis-chart">
+        <div class="threshold-line threshold-resume">
+          <span class="threshold-label" style="background: rgba(16,185,129,0.2); color: var(--success);">
+            T_resume = 12%
+          </span>
+        </div>
+        <div class="threshold-line threshold-min">
+          <span class="threshold-label" style="background: rgba(239,68,68,0.2); color: var(--error);">
+            T_suspend = 9%
+          </span>
+        </div>
+        <div class="reserve-indicator" id="reserveIndicator" style="bottom: 45%;"></div>
+        <div style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 12px;">
+          Reserve Ratio: <strong id="currentReserve">11.3%</strong>
+        </div>
+      </div>
+      <div style="margin-top: 16px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">Hysteresis State Machine</div>
+        <div style="font-size: 16px; font-weight: 600;">
+          State: <span id="hysteresisState" style="color: var(--success);">OPERATIONAL</span>
+        </div>
+        <div style="font-size: 12px; margin-top: 8px; color: var(--text-secondary);">
+          MIN_THRESHOLD = 10% | HYSTERESIS_MARGIN = 2% | T_DELAY = 300s
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// State aligned with patent specification
+const state = {
+  // State machine: IDLE -> QUEUED -> PENDING -> PREPARED -> COMMITTING -> SETTLED/ROLLED_BACK
+  current: 'IDLE',
+  
+  // Cryptographic evidence (Claims 1(a)-(b))
+  H_TR: '',           // Hash of canonical TR-Meta
+  policyDigest: '',   // Hash of policy predicates
+  nonce: '',          // ≥192-bit idempotency nonce
+  stateNonce: '',     // Commit-epoch unique identifier
+  
+  // Triple-gate verification states (Claim 1(b))
+  zkpVerified: false,
+  oracleVerified: false,
+  custodianVerified: false,
+  
+  // Timers (Claims 9, 10, etc.)
+  oracleTTL: 5,      // ORACLE_TTL_ACCEPT_SEC = 5 seconds
+  commitWindow: 90,   // T_COMMIT_SEC = 90 seconds
+  finalityWindow: 300, // T_FINALITY_SEC = 300 seconds
+  
+  // Gas accounting (Claim 11)
+  gasUsed: 0,
+  
+  // Reserve ratio for hysteresis (Claim 23)
+  reserveRatio: 11.3,
+  hysteresisState: 'OPERATIONAL',
+  
+  // Manifest entries (Claim 26)
+  manifest: [],
+  merkleRoot: '',
+  
+  // Nonce bitmap for exactly-once (Claim 25)
+  usedNonces: new Set()
+};
+
+// Aligned with specification parameters
+const PARAMS = {
+  ORACLE_TTL_ACCEPT_SEC: 5,
+  T_COMMIT_SEC: 90,
+  T_FINALITY_SEC: 300,
+  MIN_THRESHOLD: 10,
+  HYSTERESIS_MARGIN: 2,
+  T_suspend: 9,  // MIN_THRESHOLD - HYSTERESIS_MARGIN/2
+  T_resume: 12,  // MIN_THRESHOLD + HYSTERESIS_MARGIN/2
+  T_DELAY: 300,
+  GAS_COMMIT: 310000,
+  GAS_ROLLBACK: 140000
+};
+
+// Utility functions
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function log(msg, type = 'info') {
+  const container = document.getElementById('logContainer');
+  const entry = document.createElement('div');
+  entry.className = `log-entry log-${type}`;
+  entry.innerHTML = `<small>${new Date().toLocaleTimeString()}</small><div>${msg}</div>`;
+  container.insertBefore(entry, container.firstChild);
+  if (container.children.length > 20) container.removeChild(container.lastChild);
+}
+
+function setState(newState) {
+  state.current = newState;
+  const el = document.getElementById('stateDisplay');
+  el.className = `state-badge state-${newState}`;
+  el.textContent = newState;
+  
+  // Update consensus status
+  document.getElementById('consensusStatus').textContent = 
+    newState === 'COMMITTING' ? 'Finalizing...' : 
+    newState === 'SETTLED' ? 'Confirmed' : 'Ready';
+}
+
+function updateGas(amount) {
+  state.gasUsed += amount;
+  document.getElementById('gasUsed').textContent = state.gasUsed.toLocaleString();
+}
+
+function updateGates(gate, verified) {
+  const el = document.getElementById(gate);
+  if (verified) {
+    el.classList.add('verified');
+    el.classList.remove('failed');
+    el.querySelector('.gate-status').textContent = '✅';
+  } else {
+    el.classList.add('failed');
+    el.classList.remove('verified');
+    el.querySelector('.gate-status').textContent = '❌';
+  }
+}
+
+function resetGates() {
+  ['gate1', 'gate2', 'gate3'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('verified', 'failed');
+    el.querySelector('.gate-status').textContent = '⏳';
+  });
+}
+
+function updateEvidence() {
+  const container = document.getElementById('evidenceContainer');
+  if (!state.H_TR) {
+    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">Prepare transaction to generate evidence</p>';
+    return;
+  }
+  
+  container.innerHTML = `
+    <div class="manifest-label">H_TR (Travel Rule Hash)</div>
+    <div class="evidence-box">${state.H_TR}</div>
+    
+    <div class="manifest-label" style="margin-top: 12px;">Policy Digest</div>
+    <div class="evidence-box">${state.policyDigest}</div>
+    
+    <div class="manifest-label" style="margin-top: 12px;">Idempotency Nonce (≥192-bit)</div>
+    <div class="evidence-box">${state.nonce.slice(0, 32)}...</div>
+    
+    <div class="manifest-label" style="margin-top: 12px;">State Nonce</div>
+    <div class="evidence-box">${state.stateNonce.slice(0, 32)}...</div>
+    
+    ${state.merkleRoot ? `
+      <div class="manifest-label" style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+        <span>Daily Merkle Root</span>
+        <span style="padding: 2px 8px; background: rgba(16,185,129,0.2); border-radius: 4px; font-size: 10px; color: var(--success);">Claim 26</span>
+      </div>
+      <div class="evidence-box" style="background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.3);">
+        ${state.merkleRoot}
+      </div>
+    ` : ''}
+  `;
+}
+
+function updateManifest() {
+  const container = document.getElementById('manifestContainer');
+  if (state.manifest.length === 0) {
+    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">No entries yet - execute transactions to populate</p>';
+    return;
+  }
+  
+  container.innerHTML = state.manifest.map((entry, idx) => `
+    <div class="manifest-entry">
+      <div style="display: flex; justify-content: space-between;">
+        <div>
+          <div class="manifest-label">Entry #${idx + 1}</div>
+          <div class="manifest-value" style="font-size: 10px;">${entry.id}</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="manifest-label">JF_delta</div>
+          <div class="manifest-value">${entry.jf_origin} → ${entry.jf_target}</div>
+        </div>
+      </div>
+      <div style="margin-top: 8px; display: flex; justify-content: space-between;">
+        <div>
+          <div class="manifest-label">Amount</div>
+          <div class="manifest-value">${entry.amount} ${entry.currency}</div>
+        </div>
+        <div>
+          <div class="manifest-label">Cause Code</div>
+          <div class="manifest-value" style="color: ${entry.success ? 'var(--success)' : 'var(--error)'};">
+            ${entry.causeCode || 'SUCCESS'}
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateClaimStatus(claimId, status) {
+  const row = document.getElementById(claimId);
+  if (row) {
+    row.cells[2].textContent = status ? '✅' : '⏳';
+    if (status) row.style.background = 'rgba(16,185,129,0.05)';
+  }
+}
+
+function updateHysteresis() {
+  const indicator = document.getElementById('reserveIndicator');
+  const stateEl = document.getElementById('hysteresisState');
+  const currentReserveEl = document.getElementById('currentReserve');
+  
+  currentReserveEl.textContent = state.reserveRatio.toFixed(1) + '%';
+  
+  // Position indicator based on reserve ratio (0-20% range mapped to 0-100% height)
+  const position = Math.min(100, Math.max(0, (state.reserveRatio / 20) * 100));
+  indicator.style.bottom = position + '%';
+  
+  // Update state based on hysteresis thresholds
+  if (state.reserveRatio < PARAMS.T_suspend) {
+    state.hysteresisState = 'PAUSED';
+    indicator.style.background = 'var(--error)';
+    stateEl.textContent = 'PAUSED';
+    stateEl.style.color = 'var(--error)';
+  } else if (state.reserveRatio > PARAMS.T_resume) {
+    state.hysteresisState = 'OPERATIONAL';
+    indicator.style.background = 'var(--success)';
+    stateEl.textContent = 'OPERATIONAL';
+    stateEl.style.color = 'var(--success)';
+  } else {
+    // In dead zone
+    indicator.style.background = 'var(--warning)';
+  }
+  
+  document.getElementById('reserveRatio').textContent = state.reserveRatio.toFixed(1) + '%';
+}
+
+// Main execution functions aligned with patent claims
+async function prepareTransaction() {
+  log('=== PREPARING TRANSACTION (Claim 1(a)) ===', 'info');
+  resetGates();
+  
+  // Generate H_TR from canonical TR-Meta (Claims 1(a)-(b))
+  const trMeta = {
+    originatorHash: await sha256('IVMS_originator_' + Date.now()),
+    beneficiaryHash: await sha256('IVMS_beneficiary_' + Date.now()),
+    originJurisdiction: document.getElementById('originJF').value,
+    targetJurisdiction: document.getElementById('targetJF').value,
+    amount: document.getElementById('amount').value,
+    currency: document.getElementById('currency').value,
+    timestamp: new Date().toISOString()
+  };
+  
+  state.H_TR = await sha256(JSON.stringify(trMeta));
+  log(`✅ H_TR generated: ${state.H_TR.slice(0, 16)}...`, 'success');
+  updateGas(45000);
+  
+  // Generate policy digest
+  const policy = {
+    version: 'v2025.10-RC1',
+    transitions: {
+      [`${trMeta.originJurisdiction}->${trMeta.targetJurisdiction}`]: 'PERMITTED'
+    },
+    ttl: PARAMS.ORACLE_TTL_ACCEPT_SEC,
+    commit: PARAMS.T_COMMIT_SEC,
+    finality: PARAMS.T_FINALITY_SEC
+  };
+  
+  state.policyDigest = await sha256(JSON.stringify(policy));
+  log(`✅ Policy digest: ${state.policyDigest.slice(0, 16)}...`, 'success');
+  updateGas(32000);
+  
+  // Generate nonce (≥192-bit)
+  const nonceData = crypto.getRandomValues(new Uint8Array(24)); // 192 bits
+  state.nonce = await sha256(Array.from(nonceData).join(''));
+  log(`✅ Nonce (192-bit): ${state.nonce.slice(0, 12)}...`, 'success');
+  updateGas(21000);
+  
+  // Generate state-nonce (Claim 10)
+  state.stateNonce = await sha256(
+    trMeta.originJurisdiction + '_' + Date.now() + '_' + state.policyDigest
+  );
+  log(`✅ State-nonce: ${state.stateNonce.slice(0, 12)}...`, 'success');
+  
+  updateEvidence();
+  updateClaimStatus('claim1a', true);
+  
+  document.getElementById('btnVerify').disabled = false;
+  document.getElementById('btnPrepare').disabled = true;
+}
+
+async function tripleGateVerification() {
+  log('=== TRIPLE-GATE VERIFICATION (Claim 1(b)) ===', 'info');
+  setState('QUEUED');
+  updateClaimStatus('claim1b', true);
+  await sleep(500);
+  
+  setState('PENDING');
+  
+  // Gate 1: Zero-knowledge proof (Claim 1(c))
+  log('Verifying ZKP with public inputs {H_TR, policyDigest}...', 'info');
+  updateGas(100000); // ~100k gas for Groth16 verification
+  await sleep(800);
+  state.zkpVerified = true;
+  updateGates('gate1', true);
+  log('✅ ZKP verification passed (Groth16, 192 bytes)', 'success');
+  updateClaimStatus('claim1c', true);
+  
+  // Gate 2: Hardware-attested oracle (Claim 1(d))
+  log('Verifying hardware-attested oracle (Intel SGX)...', 'info');
+  await sleep(600);
+  
+  // Simulate TTL check
+  const oracleFreshness = Math.random() > 0.1; // 90% success rate
+  if (oracleFreshness) {
+    state.oracleVerified = true;
+    updateGates('gate2', true);
+    log(`✅ Oracle TTL verified: 3.2s < ${PARAMS.ORACLE_TTL_ACCEPT_SEC}s`, 'success');
+    updateClaimStatus('claim1d', true);
+  } else {
+    state.oracleVerified = false;
+    updateGates('gate2', false);
+    log(`❌ Oracle TTL expired: 7.5s > ${PARAMS.ORACLE_TTL_ACCEPT_SEC}s`, 'error');
+    await rollback('ORACLE_TTL_EXPIRED');
+    return;
+  }
+  
+  // Gate 3: Custodian pre-authorization
+  log('Verifying custodian pre-authorization...', 'info');
+  await sleep(500);
+  state.custodianVerified = true;
+  updateGates('gate3', true);
+  log('✅ Custodian signature verified (state-nonce bound)', 'success');
+  
+  // All gates passed
+  setState('PREPARED');
+  log('=== ALL GATES VERIFIED ===', 'success');
+  
+  document.getElementById('btnExecute').disabled = false;
+  document.getElementById('btnRollback').disabled = false;
+  document.getElementById('timers').style.display = 'block';
+  
+  // Start countdown timers
+  startTimers();
+}
+
+function startTimers() {
+  let ttl = PARAMS.ORACLE_TTL_ACCEPT_SEC;
+  let commit = PARAMS.T_COMMIT_SEC;
+  let finality = PARAMS.T_FINALITY_SEC;
+  
+  const timer = setInterval(() => {
+    if (state.current === 'SETTLED' || state.current === 'ROLLED_BACK') {
+      clearInterval(timer);
+      return;
+    }
+    
+    if (ttl > 0) ttl--;
+    if (commit > 0) commit--;
+    if (finality > 0) finality--;
+    
+    document.getElementById('ttlValue').textContent = ttl;
+    document.getElementById('commitValue').textContent = commit;
+    document.getElementById('finalityValue').textContent = finality;
+    
+    if (commit === 0 && state.current === 'PREPARED') {
+      clearInterval(timer);
+      log('⏰ Commit window expired!', 'error');
+      rollback('COMMIT_WINDOW_TIMEOUT');
+    }
+  }, 1000);
+}
+
+async function executeAtomic() {
+  if (state.hysteresisState === 'PAUSED') {
+    log('❌ Circuit breaker active - reserve ratio below threshold', 'error');
+    return;
+  }
+  
+  log('=== EXECUTING ATOMIC TRANSACTION (Claim 1(e)) ===', 'info');
+  setState('COMMITTING');
+  document.getElementById('hsmStatus').textContent = 'Signing...';
+  
+  // Check for nonce replay (Claim 25)
+  if (state.usedNonces.has(state.nonce)) {
+    log('❌ Nonce replay detected! Exactly-once protection', 'error');
+    await rollback('NONCE_REPLAY');
+    return;
+  }
+  
+  await sleep(1000);
+  
+  // Atomic execution (all-or-nothing)
+  const origin = document.getElementById('originJF').value;
+  const target = document.getElementById('targetJF').value;
+  const amount = document.getElementById('amount').value;
+  const currency = document.getElementById('currency').value;
+  
+  log('Atomic transaction executing...', 'info');
+  updateGas(PARAMS.GAS_COMMIT);
+  
+  await sleep(800);
+  
+  // All operations in single transaction
+  log(`✅ Jurisdiction flag: ${origin} → ${target}`, 'success');
+  log('✅ Beneficial ownership transferred', 'success');
+  log(`✅ Event emitted with H_TR and policyDigest`, 'success');
+  log('✅ Manifest entry appended', 'success');
+  log('✅ Nonce consumed (bitmap updated)', 'success');
+  
+  // Consume nonce
+  state.usedNonces.add(state.nonce);
+  
+  // Add to manifest
+  const entry = {
+    id: await sha256(state.H_TR + state.nonce + Date.now()),
+    jf_origin: origin,
+    jf_target: target,
+    amount: amount,
+    currency: currency,
+    timestamp: new Date().toISOString(),
+    success: true,
+    causeCode: null
+  };
+  state.manifest.push(entry);
+  
+  // Generate Merkle root (Claim 26)
+  const leafHashes = state.manifest.map(e => sha256(JSON.stringify(e)));
+  state.merkleRoot = await sha256(leafHashes.join(''));
+  log(`✅ Merkle root: ${state.merkleRoot.slice(0, 16)}...`, 'success');
+  
+  setState('SETTLED');
+  document.getElementById('hsmStatus').textContent = 'Active';
+  updateClaimStatus('claim1e', true);
+  
+  updateEvidence();
+  updateManifest();
+  
+  log('=== TRANSACTION SETTLED ===', 'success');
+  log(`Total gas used: ${state.gasUsed.toLocaleString()}`, 'info');
+  
+  // Simulate reserve ratio change
+  state.reserveRatio = Math.max(0, Math.min(20, state.reserveRatio + (Math.random() - 0.5) * 2));
+  updateHysteresis();
+}
+
+async function rollback(causeCode) {
+  log(`=== FORWARD REVERSAL (Claim 1(f)) ===`, 'warning');
+  log(`Cause code: ${causeCode}`, 'warning');
+  
+  setState('ROLLED_BACK');
+  updateGas(PARAMS.GAS_ROLLBACK);
+  
+  await sleep(800);
+  
+  // Rollback operations
+  const origin = document.getElementById('originJF').value;
+  log(`✅ JF reset via forward reversal to: ${origin}`, 'warning');
+  log('✅ Compensating transfer recorded', 'warning');
+  log('✅ Nonce consumed (exactly-once)', 'warning');
+  log(`✅ Cause code recorded: ${causeCode}`, 'warning');
+  
+  // Still consume nonce to prevent replay
+  state.usedNonces.add(state.nonce);
+  
+  // Add rollback entry to manifest
+  const entry = {
+    id: await sha256(state.H_TR + state.nonce + Date.now()),
+    jf_origin: origin,
+    jf_target: origin, // Reverted
+    amount: document.getElementById('amount').value,
+    currency: document.getElementById('currency').value,
+    timestamp: new Date().toISOString(),
+    success: false,
+    causeCode: causeCode
+  };
+  state.manifest.push(entry);
+  
+  updateClaimStatus('claim1f', true);
+  updateManifest();
+  
+  await sleep(1500);
+  resetDemo();
+}
+
+function resetDemo() {
+  state.current = 'IDLE';
+  state.H_TR = '';
+  state.policyDigest = '';
+  state.nonce = '';
+  state.stateNonce = '';
+  state.zkpVerified = false;
+  state.oracleVerified = false;
+  state.custodianVerified = false;
+  
+  setState('IDLE');
+  resetGates();
+  updateEvidence();
+  
+  document.getElementById('btnPrepare').disabled = false;
+  document.getElementById('btnVerify').disabled = true;
+  document.getElementById('btnExecute').disabled = true;
+  document.getElementById('btnRollback').disabled = true;
+  document.getElementById('timers').style.display = 'none';
+  
+  // Reset claim statuses
+  ['claim1a', 'claim1b', 'claim1c', 'claim1d', 'claim1e', 'claim1f'].forEach(id => {
+    const row = document.getElementById(id);
+    if (row) {
+      row.cells[2].textContent = '⏳';
+      row.style.background = '';
+    }
+  });
+}
+
+// Event listeners
+document.getElementById('btnPrepare').onclick = prepareTransaction;
+document.getElementById('btnVerify').onclick = tripleGateVerification;
+document.getElementById('btnExecute').onclick = executeAtomic;
+document.getElementById('btnRollback').onclick = () => rollback('MANUAL_ROLLBACK');
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  };
+});
+
+// Simulate reserve ratio fluctuations
+setInterval(() => {
+  if (state.current === 'IDLE') {
+    state.reserveRatio = Math.max(0, Math.min(20, 
+      state.reserveRatio + (Math.random() - 0.5) * 0.5
+    ));
+    updateHysteresis();
+  }
+}, 3000);
+
+// Initialize
+log('✅ 4D-Swap Patent Demo v3.0 initialized', 'success');
+log('📋 USPTO 63/882,399 - Triple-Gate Verification Ready', 'info');
+log('⚡ Atomic settlement with jurisdictional certainty', 'info');
+updateHysteresis();
+</script>
+
+</body>
+</html>
